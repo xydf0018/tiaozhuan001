@@ -1,122 +1,109 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>温馨跳转页</title>
+  <title>精选推荐</title>
   <style>
     body {
       font-family: "微软雅黑", sans-serif;
       padding: 30px;
-      background: linear-gradient(to bottom right, #ffe6ec, #fff0f5);
-      color: #333;
+      background: url('https://images.unsplash.com/photo-1508186225823-0963cf9ab0de?auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
       text-align: center;
     }
 
-    h2 {
-      color: #d6336c;
-      margin-bottom: 30px;
-      font-size: 24px;
-    }
-
     .link-box {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.2);
-      margin: 25px auto;
+      background: rgba(0, 0, 0, 0.6);
+      border-radius: 10px;
+      margin: 20px auto;
       padding: 20px;
-      max-width: 90%;
-    }
-
-    .name {
-      font-size: 20px;
-      font-weight: bold;
-      margin-bottom: 15px;
-      color: #d6336c;
+      width: 300px;
     }
 
     button {
-      padding: 10px 24px;
-      font-size: 16px;
-      background-color: #ff69b4;
-      color: white;
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
       border: none;
-      border-radius: 8px;
+      background: #ff69b4;
+      color: #fff;
+      border-radius: 5px;
       cursor: pointer;
     }
 
-    button:hover {
-      background-color: #e64997;
-    }
-
-    #counter {
-      position: fixed;
-      right: 10px;
-      bottom: 10px;
-      font-size: 12px;
-      background: rgba(0, 0, 0, 0.05);
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: #999;
-    }
-
-    .alert-box {
-      margin-top: 40px;
+    #message {
+      margin-top: 20px;
       font-size: 18px;
       font-weight: bold;
-      color: #d62828;
-      background: #fff3cd;
-      border: 1px solid #f5c2c7;
-      padding: 15px;
-      border-radius: 10px;
+      color: #ffff66;
+    }
+
+    #stats {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      font-size: 14px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #info {
+      margin-top: 10px;
+      font-size: 14px;
     }
   </style>
 </head>
 <body>
-  <h2>请选择要打开的链接</h2>
+  <h1>今日推荐</h1>
+  <div id="links"></div>
 
-  <div class="link-box">
-    <div class="name">小金莲</div>
-    <button onclick="copyToClipboard('https://sisxhasas798.hebjiuhong.com/index?userId=251', 'xjl')">复制链接</button>
-  </div>
-
-  <div class="link-box">
-    <div class="name">久伴</div>
-    <button onclick="copyToClipboard('https://static1.laiyifen.com/files/broadcast-grapher-app-api/image/9c7a5ad377324e328b81e06b1a0da36a.html?code=085608', 'jb')">复制链接</button>
-  </div>
-
-  <div class="alert-box">
-    ⚠️ 重要提示：请务必将链接复制后粘贴到浏览器中打开，<br>微信/QQ中无法直接跳转！
-  </div>
-
-  <div id="counter" onclick="checkCount()">查看点击次数</div>
+  <div id="message"></div>
+  <div id="stats" onclick="showStats()">查看点击次数</div>
+  <div id="info"></div>
 
   <script>
-    function copyToClipboard(link, key) {
-      const input = document.createElement("input");
-      input.setAttribute("value", link);
-      document.body.appendChild(input);
-      input.select();
-      input.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      alert("链接已复制，请粘贴到浏览器打开");
+    const data = JSON.parse(localStorage.getItem('linkData')) || [];
 
-      // 点击计数
-      let count = localStorage.getItem("count_" + key) || 0;
-      count++;
-      localStorage.setItem("count_" + key, count);
+    const container = document.getElementById("links");
+
+    let clickCount = Number(localStorage.getItem("clickCount") || 0);
+
+    data.forEach(item => {
+      const box = document.createElement('div');
+      box.className = 'link-box';
+      box.innerHTML = `
+        <div>${item.name}</div>
+        <button onclick="copyAndNotify('${item.url}')">复制链接</button>
+      `;
+      container.appendChild(box);
+    });
+
+    function copyAndNotify(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        clickCount++;
+        localStorage.setItem("clickCount", clickCount);
+        document.getElementById("message").innerText = "链接已复制，请打开浏览器粘贴访问！";
+      });
     }
 
-    function checkCount() {
-      const pwd = prompt("请输入密码查看点击数据：");
+    function showStats() {
+      let pwd = prompt("请输入密码查看详情：");
       if (pwd === "123456789aaa") {
-        const xjl = localStorage.getItem("count_xjl") || 0;
-        const jb = localStorage.getItem("count_jb") || 0;
-        alert(`点击统计：\n小金莲：${xjl} 次\n久伴：${jb} 次`);
+        let msg = `点击次数：${clickCount}`;
+        fetch('https://ipapi.co/json/')
+          .then(res => res.json())
+          .then(data => {
+            msg += `\nIP地址：${data.ip}\n城市：${data.city}\n国家：${data.country_name}`;
+            document.getElementById("info").innerText = msg;
+          }).catch(() => {
+            document.getElementById("info").innerText = msg + "\n无法获取IP定位信息";
+          });
       } else {
-        alert("密码错误，无法查看。");
+        alert("密码错误！");
       }
     }
   </script>
