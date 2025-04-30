@@ -87,23 +87,29 @@
       padding: 8px 12px;
       border-radius: 8px;
       color: #999;
+      cursor: pointer;
     }
 
     .alert-box {
       margin-top: 40px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
-      color: #d62828;
-      background: #fff3cd;
-      border: 1px solid #f5c2c7;
-      padding: 15px;
-      border-radius: 10px;
+      color: white;
+      background: #d6336c;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(214, 51, 108, 0.3);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0.6; }
     }
   </style>
 </head>
 <body>
   <div class="marquee">
-    <span>短信电话轰炸机，专门针对不服，需要的老板可以联系</span>
+    <span>短信电话轰炸机，针对小三仇敌，需要的老板可以联系</span>
   </div>
 
   <h2>请选择要打开的链接</h2>
@@ -119,10 +125,10 @@
   </div>
 
   <div class="alert-box">
-    请长按链接 → 复制 → 粘贴到手机浏览器中打开，避免微信屏蔽
+    请长按链接 → 复制 → 粘贴到浏览器中打开！（微信/QQ/微博内直接打开将失败）
   </div>
 
-  <div id="counter">点击次数：<span id="clicks">0</span></div>
+  <div id="counter" onclick="showClickCount()">点击次数：查看</div>
 
   <script>
     function copyToClipboard(link) {
@@ -131,13 +137,17 @@
         let count = localStorage.getItem("clickCount") || 0;
         count++;
         localStorage.setItem("clickCount", count);
-        document.getElementById("clicks").innerText = count;
       });
     }
 
-    window.onload = function () {
-      const count = localStorage.getItem("clickCount") || 0;
-      document.getElementById("clicks").innerText = count;
+    function showClickCount() {
+      const password = prompt("请输入密码查看点击次数：");
+      if (password === "123456789aaa") {
+        const count = localStorage.getItem("clickCount") || 0;
+        alert("当前总点击次数为：" + count);
+      } else if (password !== null) {
+        alert("密码错误！");
+      }
     }
   </script>
 </body>
